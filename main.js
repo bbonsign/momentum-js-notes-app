@@ -8,63 +8,63 @@ query('#display-container').addEventListener('click', controlButtons)
 
 // ================= Requests ====================
 
-function getNotesJSON () {
-  return fetch('http://localhost:3000/notes/', { method: 'GET' })
-    .then(results => results.json())
+async function getNotesJSON() {
+  let results = await fetch('http://localhost:3000/notes/', {method: 'GET'})
+  return results.json()
 }
 
-function postNote (noteObj) {
-  return fetch('http://localhost:3000/notes/', {
+async function postNote(noteObj) {
+  let response = await fetch('http://localhost:3000/notes/', {
     method: 'POST',
     headers: {
       'Content-type': 'application/json'
     },
     body: JSON.stringify(noteObj)
   })
-    .then(response => { console.log(`Posted note responded with status: ${response.status}`) })
+  console.log(`Posted note responded with status: ${response.status}`)
 }
 
-function patchNote (noteObj) {
-  return fetch(`http://localhost:3000/notes/${noteObj.id}`, {
+async function patchNote(noteObj) {
+  let response = await fetch(`http://localhost:3000/notes/${noteObj.id}`, {
     method: 'PATCH',
     headers: {
       'Content-type': 'application/json'
     },
     body: JSON.stringify(noteObj)
   })
-    .then(response => { console.log(`Patched note responded with status: ${response.status}`) })
+  console.log(`Patched note responded with status: ${response.status}`)
 }
 
 // id should the id assigned to the note on the server
-function deleteRequest (id) {
+async function deleteRequest(id) {
   id = String(id)
-  return fetch(`http://localhost:3000/notes/${id}`, { method: 'DELETE' })
-    .then(response => { console.log(`DELETE request responded with status: ${response.status}`) })
+  let response = await fetch(`http://localhost:3000/notes/${id}`, {method: 'DELETE'})
+  console.log(`DELETE request responded with status: ${response.status}`)
 }
 
 // ====================== Functions ============================
-function displayList (noteJSON) {
+function displayList(noteJSON) {
   const listContainer = query('#note-list')
   noteJSON.reverse().map(obj => listContainer.appendChild(createListElem(obj)))
 }
 
-function query (selector) {
+function query(selector) {
   return document.querySelector(selector)
 }
 
-function createElement (type, classList) {
+function createElement(type, classList) {
   const element = document.createElement(type)
   element.classList.add(...classList)
   return element
 }
 
-function createTextElem (type, text, classList) {
+function createTextElem(type, text, classList) {
   const elem = createElement(type, classList)
   elem.textContent = text
   return elem
 }
 
-function setNoteDataAttr (element, noteObj) {
+function setNoteDataAttr(element, noteObj) {
   element.setAttribute('data-id', noteObj.id)
   element.setAttribute('data-title', noteObj.title)
   element.setAttribute('data-body', noteObj.body)
@@ -73,7 +73,7 @@ function setNoteDataAttr (element, noteObj) {
   return element
 }
 
-function createListElem (noteObj) {
+function createListElem(noteObj) {
   const container = createElement('div', ['note-list'])
   container.id = 'note' + String(noteObj.id)
   setNoteDataAttr(container, noteObj)
@@ -87,14 +87,16 @@ function createListElem (noteObj) {
     if (noteListTile.matches('.selected')) {
       const note = query(`#display${noteListTile.dataset.id}`)
       closeNote(note)
-    } else {(
-            displayNote(event)
-        )}
+    } else {
+      (
+        displayNote(event)
+      )
+    }
   })
   return container
 }
 
-function createNoteElem (noteObj) {
+function createNoteElem(noteObj) {
   const container = createElement('div', ['note', 'shadow'])
   container.id = 'display' + String(noteObj.id)
   setNoteDataAttr(container, noteObj)
@@ -103,12 +105,12 @@ function createNoteElem (noteObj) {
   titleContainer.appendChild(createNoteControlElems())
   container.appendChild(titleContainer)
   const elements = noteObj.body.split('\n').map(par => createTextElem('p', par, ['note-par']))
-  elements.map(elem => { container.appendChild(elem) })
+  elements.map(elem => {container.appendChild(elem)})
   container.appendChild(createTextElem('p', `Last edited: ${moment(noteObj.date).format('MMM Do, YYYY, h:mm a')}`, ['date']))
   return container
 }
 'Last edit: ' + moment().format()
-function createNoteControlElems () {
+function createNoteControlElems() {
   const container = createElement('div', ['controls'])
   const pinButton = createElement('button', ['pin', 'to-top', 'button-sm'])
   const editButton = createElement('button', ['edit', 'edt', 'button-sm'])
@@ -129,7 +131,7 @@ function createNoteControlElems () {
   return container
 }
 
-function togglePinnedNoteObect (noteElem) {
+function togglePinnedNoteObect(noteElem) {
   let pinned
   if (noteElem.matches('.pinned')) {
     pinned = false
@@ -141,21 +143,21 @@ function togglePinnedNoteObect (noteElem) {
   return fetch(`http://localhost:3000/notes/${noteElem.dataset.id}`,
     {
       method: 'PATCH',
-      headers: { 'Content-type': 'application/json' },
-      body: JSON.stringify({ pinned: pinned })
+      headers: {'Content-type': 'application/json'},
+      body: JSON.stringify({pinned: pinned})
     })
-    .then(response => { console.log(`PATCH request responded with status: ${response.status}`) })
+    .then(response => {console.log(`PATCH request responded with status: ${response.status}`)})
 }
 
-function pinNote (event) {
+function pinNote(event) {
   // ----------------- todo -----------------------
 }
 
-function populateNoteObj (id, title, body, pinned, date) {
-  return noteObj = { id, title, body, pinned, date }
+function populateNoteObj(id, title, body, pinned, date) {
+  return noteObj = {id, title, body, pinned, date}
 }
 
-function displayNote (event) {
+function displayNote(event) {
   const note = event.target.closest('.note-list')
   if (note.matches('.selected')) {
     return
@@ -165,13 +167,13 @@ function displayNote (event) {
   query('#note-display').insertAdjacentElement('afterbegin', createNoteElem(noteObj))
 }
 
-function closeNote (noteElem) {
+function closeNote(noteElem) {
   const id = noteElem.dataset.id
   query(`#note${id}`).classList.remove('selected')
   noteElem.remove()
 }
 
-function deleteNote (noteElem) {
+function deleteNote(noteElem) {
   const yn = prompt('Delete (y) or cancel (n)?')
   if (yn === 'y') {
     deleteRequest(noteElem.dataset.id)
@@ -181,14 +183,13 @@ function deleteNote (noteElem) {
   }
 }
 
-function editNote (note) {
+function editNote(note) {
   const body = note.dataset.body
   const title = note.dataset.title
   createForm(note.dataset.id, title, body, 'edit')
 }
 
-function controlButtons (event) {
-  let note, id
+function controlButtons(event) {
   if (event.target.closest('.note')) {
     note = event.target.closest('.note')
     id = note.id
@@ -205,7 +206,7 @@ function controlButtons (event) {
 }
 
 // use = "create" or "edit" to indicate whether to POST or PATCH
-function createForm (id, titleParam = '', bodyParam = '', use) {
+function createForm(id, titleParam = '', bodyParam = '', use) {
   const displayContainer = query('#display-container')
   for (const child of displayContainer.children) {
     if (child.id == 'take-note-form') {
@@ -254,11 +255,11 @@ function createForm (id, titleParam = '', bodyParam = '', use) {
       patchNote(noteObj)
         .then(getNotesJSON)
         .then(displayList)
-        .then(param => { query('#note-display').innerHTML = '' })
+        .then(param => {query('#note-display').innerHTML = ''})
     }
   })
 }
 
-function removeForm () {
+function removeForm() {
   query('#take-note-form').remove()
 }
