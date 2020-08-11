@@ -1,7 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "json-server": "^0.15.1",
+    "dot-prop": "^5.1.1",
+    "json-server": "^0.16.1",
     "live-server": "^1.2.1",
     "npm-run-all": "^4.1.5",
     "shoelace-css": "^1.0.0-beta24"
